@@ -220,6 +220,29 @@ def query_log_graph(graph_file):
     return None
 
 
+def db_insert(turtle, from_string=False):
+    """ Make a non-secure insert into the DB
+    """
+    #convert the Turtle into N-Triples
+    g = Graph()
+    if from_string:
+        g.parse(data=turtle, format='text/turtle')
+    else:
+        g.load(turtle, format='n3')
+
+    # SPARQL INSERT
+    data = {'update': 'INSERT DATA { ' + g.serialize(format='nt') + ' }'}
+    r = requests.post(settings.FUSEKI_UPDATE_URI, data=data)
+    try:
+        if r.status_code != 200 and r.status_code != 201:
+            return [False, r.text]
+        return [True, r.text]
+    except Exception, e:
+        print e.message
+        return [False, e.message]
+
+
+
 xml_file = 'results.xml'
 json_file = 'pairs.json'
 log_file = 'weblog.txt'
@@ -233,5 +256,6 @@ graph_file = 'graph.ttl'
 #with open(graph_file, 'w') as gf:
 #    gf.write(g.serialize(format='turtle'))
 
+#query_log_graph(graph_file)
 
-query_log_graph(graph_file)
+db_insert('graph.ttl')
