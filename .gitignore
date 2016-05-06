@@ -93,7 +93,7 @@ ENV/
 .idea/
 
 # project-specific files
-results.xml
+services.xml
 pairs.json
 creds.json
-graph.ttl
+graph.n3
