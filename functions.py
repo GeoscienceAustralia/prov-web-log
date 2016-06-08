@@ -156,6 +156,18 @@ def create_activity_triples(activity_uri, process_start_time, service_uri, proce
     return g
 
 
+def create_entity_triples(output_entity_uri, label, activity_uri, process_start_time):
+    PROV = Namespace("http://www.w3.org/ns/prov#")
+    g = Graph()
+    e = URIRef(output_entity_uri)
+    g.add((e, RDF.type, PROV.Entity))
+    g.add((e, RDFS.label, Literal(label, datatype=XSD.string)))
+    g.add((e, PROV.startedAtTime, Literal(datetime.strftime(process_start_time, '%Y-%m-%dT%H:%M:%S.%f'), datatype=XSD.datetime)))
+    g.add((e, PROV.wasGeneratedBy, URIRef(activity_uri)))
+
+    return g
+
+
 def triplify_line(process_start_time, server_ip, http_verb, request_url, request_qsa, client_ip, pairs_dict):
     geocatid = get_service_geocatid(pairs_dict, request_url)
     if geocatid is not None:
@@ -167,11 +179,15 @@ def triplify_line(process_start_time, server_ip, http_verb, request_url, request
         activity_uri = settings.BASE_URI_ACTIVITY + id_generator()
         # make the procedure (Entity) URI
         procedure_uri = settings.BASE_URI_ENTITY + id_generator()
+        # make the output entity (Entity) URI
+        output_entity_uri = settings.BASE_URI_ENTITY + id_generator()
 
         g = create_client_triples(client_uri)
         g += create_service_triples(service_uri, client_uri)
         g += create_procedure_triples(procedure_uri, request_qsa, client_uri)
         g += create_activity_triples(activity_uri, process_start_time, service_uri, procedure_uri)
+        # TODO: improve the label
+        g += create_entity_triples(output_entity_uri, 'Web Service Request Output', activity_uri, process_start_time)
 
         return g
     else:
