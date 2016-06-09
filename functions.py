@@ -162,7 +162,7 @@ def create_entity_triples(output_entity_uri, label, activity_uri, process_start_
     e = URIRef(output_entity_uri)
     g.add((e, RDF.type, PROV.Entity))
     g.add((e, RDFS.label, Literal(label, datatype=XSD.string)))
-    g.add((e, PROV.startedAtTime, Literal(datetime.strftime(process_start_time, '%Y-%m-%dT%H:%M:%S.%f'), datatype=XSD.datetime)))
+    g.add((e, PROV.generatedAtTime, Literal(datetime.strftime(process_start_time, '%Y-%m-%dT%H:%M:%S.%f'), datatype=XSD.datetime)))
     g.add((e, PROV.wasGeneratedBy, URIRef(activity_uri)))
 
     return g
